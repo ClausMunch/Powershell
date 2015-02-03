@@ -6,7 +6,7 @@
 #>
 param (
       [string]$serverName = $(throw "-serverName is required.")
-    , [string]$databaseName = $(throw "-databaseName is required.")
+#    , [string]$databaseName = $(throw "-databaseName is required.")
     , [string]$login = $(throw "-login is required.")
     , [switch]$logtofile
     )
@@ -28,8 +28,8 @@ if ($connection.State -ne 'Existing') {
 }
     
 if ($connection.Logins[$login]) {
-    Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") $login located in $databaseName"
-    $log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") $login located in $databaseName`r`n"
+    Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Scripting user $login"
+    $log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Scripting user $login`r`n"
 }
 else {
     Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Sorry, but the user given was not found!"
@@ -88,14 +88,14 @@ foreach ($specified_user in $connection.Logins[$login])
         Break
     } 
 }
-
-Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Exporting $login from $databaseName on $serverName"
-$log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Exporting $login from $databaseName on $serverName`r`n"
-Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Writing Output file $databaseName.$login.sql"
-$log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Writing Output file $databaseName.$login.sql`r`n"
-$outpath = $ScriptSavePath + '\' + $connection.Information.FullyQualifiedNetName+'\'+$connection.InstanceName+'\'+$databaseName+'\logins\'
+$filename = $login -replace '\\','_'
+Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Exporting $login from $serverName"
+$log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Exporting $login from $serverName`r`n"
+Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Writing Output file $filename.sql"
+$log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Writing Output file $filename.sql`r`n"
+$outpath = $ScriptSavePath + '\' + $connection.Information.FullyQualifiedNetName+'\'+$connection.InstanceName+'\logins\'
 New-Item -ItemType Directory -Force -Path $outpath | Out-Null
-Out-File -FilePath $outpath$login'.sql' -InputObject $file_content | Out-Null
+Out-File -FilePath $outpath$filename'.sql' -InputObject $file_content | Out-Null
 Write-Output "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Script ended..."
 $log += "$(Get-Date -format "yyyy-MM-dd HH:mm:ss") Script ended...`r`n"
 if ($logtofile -eq $true) {
